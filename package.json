@@ -1,0 +1,76 @@
+{
+  "name": "iobroker.pv-power-control",
+  "version": "0.0.2",
+  "description": "Adpater to control the pv power to manage devices like wallbox",
+  "author": {
+    "name": "Newan",
+    "email": "info@newan.de"
+  },
+  "homepage": "https://github.com/Newan/ioBroker.pv-power-control",
+  "license": "MIT",
+  "keywords": [
+    "pv power wallbox vehicle"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Newan/ioBroker.pv-power-control"
+  },
+  "dependencies": {
+    "@iobroker/adapter-core": "^2.6.0"
+  },
+  "devDependencies": {
+    "@alcalzone/release-script": "^2.2.2",
+    "@iobroker/adapter-dev": "^1.0.0",
+    "@iobroker/testing": "^3.0.1",
+    "@types/chai": "^4.3.1",
+    "@types/chai-as-promised": "^7.1.5",
+    "@types/mocha": "^9.1.1",
+    "@types/node": "^14.18.16",
+    "@types/proxyquire": "^1.3.28",
+    "@types/sinon": "^10.0.11",
+    "@types/sinon-chai": "^3.2.8",
+    "@typescript-eslint/eslint-plugin": "^5.23.0",
+    "@typescript-eslint/parser": "^5.23.0",
+    "chai": "^4.3.6",
+    "chai-as-promised": "^7.1.1",
+    "eslint": "^8.15.0",
+    "mocha": "^10.0.0",
+    "proxyquire": "^2.1.3",
+    "rimraf": "^3.0.2",
+    "sinon": "^14.0.0",
+    "sinon-chai": "^3.7.0",
+    "source-map-support": "^0.5.21",
+    "ts-node": "^10.7.0",
+    "typescript": "~4.5.5"
+  },
+  "main": "build/main.js",
+  "files": [
+    "admin{,/!(src)/**}/!(tsconfig|tsconfig.*).json",
+    "admin{,/!(src)/**}/*.{html,css,png,svg,jpg,js}",
+    "build/",
+    "www/",
+    "io-package.json",
+    "LICENSE"
+  ],
+  "scripts": {
+    "prebuild": "rimraf build",
+    "build": "build-adapter ts",
+    "watch": "build-adapter ts --watch",
+    "prebuild:ts": "rimraf build",
+    "build:ts": "build-adapter ts",
+    "watch:ts": "build-adapter ts --watch",
+    "test:ts": "mocha --config test/mocharc.custom.json src/**/*.test.ts",
+    "test:package": "mocha test/package --exit",
+    "test:unit": "mocha test/unit --exit",
+    "test:integration": "mocha test/integration --exit",
+    "test": "npm run test:ts && npm run test:package",
+    "check": "tsc --noEmit",
+    "lint": "eslint --ext .ts src/",
+    "translate": "translate-adapter",
+    "release": "release-script"
+  },
+  "bugs": {
+    "url": "https://github.com/Newan/ioBroker.pv-power-control/issues"
+  },
+  "readmeFilename": "README.md"
+}
