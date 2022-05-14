@@ -73,15 +73,31 @@
         "connectionType": "local",
         "dataSource": "poll",
         "materialize": true,
+        "adminUI": {
+            "config": "json"
+        },
         "dependencies": [
             {
-                "js-controller": ">=2.0.0"
+                "js-controller": ">=2.0.0",
+                "admin": ">=5.1.26"
             }
         ]
     },
     "native": {
-        "option1": true,
-        "option2": "42"
+        "intervall": 10,
+        "start_time": 15,
+        "stop_time": 15,        
+        "grid_id": "",
+        "grid_factor": 1,
+        "wallbox_enable_id": "",
+        "wallbox_power_id": "",
+        "wallbox_ampere_step": 1,
+        "wallbox_ampere_max": 22,
+        "wallbox_ampere_min": 2,
+        "vehicle_pluged_id": "",
+        "vehicle_soc_id": ""
+
+
     },
     "objects": [],
     "instanceObjects": []
