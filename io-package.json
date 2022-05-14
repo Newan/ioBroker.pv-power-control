@@ -86,7 +86,7 @@
     "native": {
         "intervall": 10,
         "start_time": 15,
-        "stop_time": 15,        
+        "stop_time": 15,
         "grid_id": "",
         "grid_factor": 1,
         "wallbox_enable_id": "",
@@ -96,8 +96,6 @@
         "wallbox_ampere_min": 2,
         "vehicle_pluged_id": "",
         "vehicle_soc_id": ""
-
-
     },
     "objects": [],
     "instanceObjects": []
