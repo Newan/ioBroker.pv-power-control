@@ -10,7 +10,7 @@
     "grid": "Rede",
     "grid_id:": "Grid-ID",
     "grid_id_help": "ID do ponto de dados para mostrar a potência da rede em watt",
-    "grid_factor:": "Fator de grade",
+    "grid_factor": "Fator de grade",
     "grid_factor_help": "Fator/Multiplicador fpr Conversão do valor GridId",
     "wallbox": "Caixa de parede",
     "wallbox_enable_id": "Ativar Wallbox-ID",

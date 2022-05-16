@@ -98,5 +98,163 @@
         "vehicle_soc_id": ""
     },
     "objects": [],
-    "instanceObjects": []
+    "instanceObjects": [        
+        {
+            "_id": "control",
+            "type": "channel",
+            "common": {
+                "name": {
+                    "en": "Control PV-Logic",
+                    "de": "PV-Logik steuern",
+                    "ru": "Управление PV-логикой",
+                    "pt": "Controle PV-Logic",
+                    "nl": "Besturing PV-Logic",
+                    "fr": "Contrôle PV-Logique",
+                    "it": "Controllo PV-Logica",
+                    "es": "Control de lógica fotovoltaica",
+                    "pl": "Sterowanie PV-Logic",
+                    "zh-cn": "控制 PV 逻辑"
+                }
+            },
+            "native": {}
+        },
+        {
+            "_id": "control.start",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Start PV charging",
+                    "de": "PV-Ladevorgang starten",
+                    "ru": "Начать зарядку ФЭ",
+                    "pt": "Iniciar carregamento fotovoltaico",
+                    "nl": "Start PV opladen",
+                    "fr": "Démarrer la charge photovoltaïque",
+                    "it": "Avvia la ricarica FV",
+                    "es": "Iniciar carga fotovoltaica",
+                    "pl": "Rozpocznij ładowanie PV",
+                    "zh-cn": "开始光伏充电"
+                },
+                "type": "button.start",
+                "role": "button",
+                "read": true,
+                "write": true
+            },
+            "native": {}
+        },
+        {
+            "_id": "control.stop",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Stop PV charging",
+                    "de": "Stoppen Sie das PV-Laden",
+                    "ru": "Остановить зарядку ФЭ",
+                    "pt": "Parar o carregamento fotovoltaico",
+                    "nl": "Stop PV opladen",
+                    "fr": "Arrêter la charge photovoltaïque",
+                    "it": "Interrompere la ricarica fotovoltaica",
+                    "es": "Detener la carga fotovoltaica",
+                    "pl": "Zatrzymaj ładowanie PV",
+                    "zh-cn": "停止光伏充电"
+                },
+                "type": "boolean",
+                "role": "button.stop",
+                "read": true,
+                "write": true
+            },
+            "native": {}
+        },
+        {
+            "_id": "information",
+            "type": "channel",
+            "common": {
+                "name": {
+                    "en": "Information",
+                    "de": "Information",
+                    "ru": "Информация",
+                    "pt": "Em formação",
+                    "nl": "Informatie",
+                    "fr": "Information",
+                    "it": "Informazione",
+                    "es": "Información",
+                    "pl": "Informacja",
+                    "zh-cn": "信息"
+                }
+            },
+            "native": {}
+        },
+        {
+            "_id": "information.mode",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Mode",
+                    "de": "Modus",
+                    "ru": "Режим",
+                    "pt": "Modo",
+                    "nl": "Modus",
+                    "fr": "Mode",
+                    "it": "Modalità",
+                    "es": "Modo",
+                    "pl": "Tryb",
+                    "zh-cn": "模式"
+                },
+                "type": "string",
+                "role": "info.status",
+                "read": true,
+                "write": false
+
+            },
+            "native": {}
+        },
+        {
+            "_id": "information.currentGridPower",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Current grid power",
+                    "de": "Aktuelle Netzleistung",
+                    "ru": "Текущая мощность сети",
+                    "pt": "Potência atual da rede",
+                    "nl": "Huidige netstroom",
+                    "fr": "Puissance actuelle du réseau",
+                    "it": "Potenza di rete attuale",
+                    "es": "Potencia de la red actual",
+                    "pl": "Aktualna moc sieci",
+                    "zh-cn": "当前电网功率"
+                },
+                "type": "number",
+                "role": "value",
+                "read": true,
+                "write": false
+
+            },
+            "native": {}
+        },
+        {
+            "_id": "information.wallbox_enable",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Wallbox enable status",
+                    "de": "Wallbox-Aktivierungsstatus",
+                    "ru": "Статус включения Wallbox",
+                    "pt": "Status de ativação da Wallbox",
+                    "nl": "Wallbox-inschakelstatus",
+                    "fr": "État d'activation de la Wallbox",
+                    "it": "Stato di abilitazione wallbox",
+                    "es": "Estado de habilitación de Wallbox",
+                    "pl": "Stan włączenia Wallbox",
+                    "zh-cn": "Wallbox 启用状态"
+                },
+                "type": "boolean",
+                "role": "value",
+                "read": true,
+                "write": false
+
+            },
+            "native": {}
+        }
+
+    ]
 }

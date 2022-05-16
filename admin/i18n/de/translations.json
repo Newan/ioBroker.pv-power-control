@@ -10,7 +10,7 @@
     "grid": "Netz",
     "grid_id:": "Grid-ID",
     "grid_id_help": "ID des Datenpunkts zur Anzeige der Netzleistung in Watt",
-    "grid_factor:": "Netzfaktor",
+    "grid_factor": "Netzfaktor",
     "grid_factor_help": "Faktor/Multiplikator zur Konvertierung des GridId-Wertes",
     "wallbox": "Wallbox",
     "wallbox_enable_id": "Wallbox-ID aktivieren",

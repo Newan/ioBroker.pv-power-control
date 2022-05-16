@@ -10,7 +10,7 @@
     "grid": "Rooster",
     "grid_id:": "Raster-ID",
     "grid_id_help": "ID van het datapunt om het netvermogen in watt weer te geven",
-    "grid_factor:": "Rasterfactor",
+    "grid_factor": "Rasterfactor",
     "grid_factor_help": "Factor/Multiplier fpr Conversie de GridId-waarde",
     "wallbox": "Wallbox",
     "wallbox_enable_id": "Wallbox-ID inschakelen",

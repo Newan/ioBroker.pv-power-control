@@ -4,8 +4,18 @@
 declare global {
     namespace ioBroker {
         interface AdapterConfig {
-            option1: boolean;
-            option2: string;
+            intervall: number;
+            start_time: number;
+            stop_time: number;
+            grid_factor: number;
+            grid_id: string;
+            wallbox_enable_id: string;
+            wallbox_ampere_id: string;
+            wallbox_ampere_step: number;
+            wallbox_ampere_max: number;
+            wallbox_ampere_min: number;
+            vehicle_pluged_id: string;
+            vehicle_soc_id: string;
         }
     }
 }

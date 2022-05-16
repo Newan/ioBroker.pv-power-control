@@ -5,13 +5,13 @@ class PvPowerConrol extends utils.Adapter {
     private watchdogInterval!: ioBroker.Interval ; //Intervall für Abfrage des Smatmeters und steuern der Wallbox
     private startTimer!: ioBroker.Timeout; //Timer für Start der PV Ladung
     private stopTimer!: ioBroker.Timeout; //Timer für Stop der PV Ladung
-    private powerFactor = 1; //Smatmeter factor zum umrechenen
+    private gridFactor = 1; //Smatmeter factor zum umrechenen
     private currentPower = 0; //Strom einspeisung oder bezug?
     private isPluged = false; //Auto angeschlossen?
     private vehicleSoc = 0; //Ladesatnd des Autos
     private stepAmpereWallbox = 1; //Mindestampere für eine Ampere hochschalten an der Wallbox
     private wallboxAmpere = 0; //Aktuelle Ampereleistung Wallbox
-    private wallboxWatt = 0; //Aktuelle Wattleistung Wallbox
+    private wallboxEnable = false; //Aktuellen Wallboxstatus
     private minWallboxAmpere = 2 // Mindestampere zum Laden;
     private maxWallboxAmpere = 32 // MaximalAmpere für Wallbox
     private mode ='stop' // stop = Keine Ladung erfolgt, start=warten auf start, pv = Sind m PV Lademodus
@@ -40,89 +40,166 @@ class PvPowerConrol extends utils.Adapter {
      * Is called when databases are connected and adapter received configuration.
      */
     private async onReady(): Promise<void> {
+        let tmpLoadError = false
+        /**Genreal */
+        if (this.config.intervall > 0) {
+            this.intervalTime = this.config.intervall;
+        } else {
+            this.log.error('Wrong intervall time');
+            tmpLoadError = true;
+        }
+
+        if (this.config.start_time > 0 && this.config.start_time < 3600) {
+            this.startTime = this.config.start_time;
+        } else {
+            this.log.error('Wrong starttimer time: ' + this.config.start_time.toString());
+            tmpLoadError = true;
+        }
+
+        if (this.config.stop_time > 0 && this.config.stop_time < 3600) {
+            this.stopTime = this.config.stop_time;
+        } else {
+            this.log.error('Wrong stoptimer time: ' + this.config.stop_time.toString());
+            tmpLoadError = true;
+        }
+
         /** Grid */
-        //Prüfen ob wir ein GRid/Smartmeter haben
-        this.subscribeForeignStatesAsync('0_userdata.0.grid');
+        if (this.config.grid_factor != 0) {
+            this.gridFactor = this.config.grid_factor;
+        } else {
+            this.log.error('Wrong grid factor:' + this.config.grid_factor.toString());
+            tmpLoadError = true;
+        }
+
+        if (this.config.grid_id != '') {
+            this.subscribeForeignStatesAsync(this.config.grid_id);
+        } else {
+            this.log.error('Wrong grid id - no Samrtmeter found');
+            tmpLoadError = true;
+        }
 
         /** Wallbox */
         //Prüfen ob wir Wallboxstatus haben
-        this.subscribeForeignStatesAsync('0_userdata.0.wallbox_enable');
+        if (this.config.wallbox_enable_id != '') {
+            //Subscribe für Änderungen
+            this.subscribeForeignStatesAsync(this.config.wallbox_enable_id);
+            //holen den aktuellen status
+            const tmpState = await this.getStateAsync(this.config.wallbox_enable_id);
+            this.wallboxEnable = tmpState?.val ? true : false;
+        } else {
+            this.log.error('Wrong wallbox status id - no boolean found');
+            tmpLoadError = true;
+        }
 
-        //Prüfen ob wir Wallboxampere haben
-        this.subscribeForeignStatesAsync('0_userdata.0.wallbox_power');
+        //Prüfen ob wir Wallbox ampere haben
+        if (this.config.wallbox_ampere_id != '') {
+            //Subscribe für Änderungen
+            this.subscribeForeignStatesAsync(this.config.wallbox_ampere_id);
+            //holen den aktuellen status
+            const tmpState = await this.getForeignStateAsync(this.config.wallbox_ampere_id);
+            this.wallboxAmpere = Number(tmpState?.val);
+        } else {
+            this.log.error('Wrong wallbox ampere id - no number found');
+            tmpLoadError = true;
+        }
+
+        if (this.config.wallbox_ampere_step > 0) {
+            this.stepAmpereWallbox = this.config.wallbox_ampere_step;
+        } else {
+            this.log.error('Wrong wallbox ampere step:' + this.config.wallbox_ampere_step.toString());
+            tmpLoadError = true;
+        }
+
+        if (this.config.wallbox_ampere_max > 0) {
+            this.maxWallboxAmpere = this.config.wallbox_ampere_max;
+        } else {
+            this.log.error('Wrong wallbox max ampere :' + this.config.wallbox_ampere_max.toString());
+            tmpLoadError = true;
+        }
+
+        if (this.config.wallbox_ampere_min > 0) {
+            this.minWallboxAmpere = this.config.wallbox_ampere_min;
+        } else {
+            this.log.error('Wrong wallbox max ampere :' + this.config.wallbox_ampere_min.toString());
+            tmpLoadError = true;
+        }
 
         /** Vehicle */
         //Prüfen ob wir Autosstatus haben
-        this.getForeignStateAsync('0_userdata.0.vehicle_pluged').then( result => {
-            if (result != null) {
-                this.isPluged = Boolean(result);
-            } else {
-                this.isPluged = false;
-            }
-        })
-        this.subscribeForeignStatesAsync('0_userdata.0.vehicle_pluged');
+        if (this.config.vehicle_pluged_id != '') {
+            //Subscribe für Änderungen
+            this.subscribeForeignStatesAsync(this.config.vehicle_pluged_id);
+            //holen den aktuellen status
+            const tmpState = await this.getForeignStateAsync(this.config.vehicle_pluged_id);
+            this.isPluged = tmpState?.val? true: false;
+        } else {
+            this.log.error('Wrong vehicle pluged id - no boolean found');
+            tmpLoadError = true;
+        }
 
-        //Prüfen ob wir SOC des Autos haben
-        this.subscribeForeignStatesAsync('0_userdata.0.vehicle_soc');
+        if (this.config.vehicle_soc_id != '') {
+            //Subscribe für Änderungen
+            this.subscribeForeignStatesAsync(this.config.vehicle_soc_id);
+            //holen den aktuellen status
+            const tmpState = await this.getForeignStateAsync(this.config.vehicle_soc_id);
+            this.vehicleSoc = Number(tmpState?.val);
+        } else {
+            this.log.error('Wrong vehicle SoC id - no number found');
+            tmpLoadError = true;
+        }
 
-        /** Control Adapter */
-        //this.subscribeStates('mode_pv');
-        //this.subscribeStates('stop');
-        //this.subscribeStates('start_full');
+        if (!tmpLoadError) {
+            this.log.info('loading complete - all data present');
 
-        //await this.setStateAsync('testVariable', true);
+            //Initial wallbox all to 0
+            await this.setWallboxStateAsync(this.config.wallbox_ampere_id, 0, true);
+            await this.setWallboxStateAsync(this.config.wallbox_enable_id, false, true);
 
-        //Initial all to 0
-        this.setForeignStateAsync('0_userdata.0.wallbox_power', 0, true);
-        this.setForeignStateAsync('0_userdata.0.wallbox_ampere', 0, true);
-        this.setForeignStateAsync('0_userdata.0.wallbox_enable', false, true);
-
-        this.watchdogInterval = this.setInterval(()=> {
-            this.log.debug('Check Intervall tick');
-            this.checkPvControl();
-        }, this.intervalTime);
+            //start watchdog
+            this.watchdogInterval = this.setInterval(async ()=> {
+                this.log.debug('Check Intervall tick');
+                await this.checkPvControl();
+            }, this.intervalTime * 1000);
+        } else {
+            this.log.info('loading incomplete - mising data');
+        }
     }
 
-    /**
-     * Is called when adapter shuts down - callback has to be called under any circumstances!
-     */
     private onUnload(callback: () => void): void {
         try {
             clearTimeout(this.stopTimer);
             clearTimeout(this.startTimer);
 
             clearInterval(this.watchdogInterval);
-
             callback();
         } catch (e) {
             callback();
         }
     }
 
-    private onStateChange(id: string, state: ioBroker.State | null | undefined): void {
+    private async onStateChange(id: string, state: ioBroker.State | null | undefined): Promise<void> {
         if (state) {
             switch(id) {
-                case '0_userdata.0.grid':
+                case this.config.grid_id:
                     this.log.debug('New value for grid:' + state.val?.toString());
-                    this.setGridValue(state.val)
+                    await this.setGridValue(state.val)
                     break;
-                case '0_userdata.0.vehicle_pluged':
+                case this.config.vehicle_pluged_id:
                     this.log.debug('Vehicle pluged:' + state.val?.toString());
                     this.isPluged = state.val ? true : false
                     break;
-                case '0_userdata.0.vehicle_soc':
+                case this.config.vehicle_soc_id:
                     this.log.debug('Vehicle soc:' + state.val?.toString());
                     this.vehicleSoc = state.val != null? +state.val : 0
                     break;
-                case '0_userdata.0.wallbox_power':
-                    this.log.debug('Wallbox power new:' + state.val?.toString());
-                    this.wallboxWatt = state.val != null? +state.val : 0
-                    break;
-                case '0_userdata.0.wallbox_ampere':
-                    this.log.debug('Wallbox ampere new:' + state.val?.toString());
+                case this.config.wallbox_ampere_id:
+                    this.log.debug('Wallbox ampere:' + state.val?.toString());
                     this.wallboxAmpere = state.val != null? +state.val : 0
                     break;
-
+                case this.config.wallbox_enable_id:
+                    this.log.debug('Wallbox enable:' + state.val?.toString());
+                    this.wallboxEnable = state.val ? true: false;
+                    break;
                 default:
                     this.log.error('No supported event found');
                     this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
@@ -133,10 +210,10 @@ class PvPowerConrol extends utils.Adapter {
         }
     }
 
-
-    private setGridValue(power: ioBroker.StateValue): void {
+    private async setGridValue(power: ioBroker.StateValue): Promise<void> {
         if(power != null) {
-            this.currentPower = +power * this.powerFactor
+            this.currentPower = +power * this.gridFactor
+            this.setStateAsync('information.currentGridPower', this.currentPower, true);
         } else {
             this.currentPower = 0;
         }
@@ -144,7 +221,7 @@ class PvPowerConrol extends utils.Adapter {
         this.log.debug('currentPower:' + this.currentPower.toString());
     }
 
-    private setWallbox(ampere: number): void {
+    private async setWallbox(ampere: number): Promise<void> {
         //this.wallboxWatt = this.wallboxWatt + watt;
         //this.wallboxAmpere = Math.floor(this.wallboxAmpere + ampere);
         const tmpNewAmpere = this.wallboxAmpere + ampere;
@@ -153,24 +230,22 @@ class PvPowerConrol extends utils.Adapter {
         if (tmpNewAmpere >= this.minWallboxAmpere) {
             if (tmpNewAmpere >= this.maxWallboxAmpere) {
                 this.log.debug('More power as the max Wallbox, set to maxAmpere from Wallbox');
-                this.setForeignStateAsync('0_userdata.0.wallbox_power', this.getWattFromAmpere(this.maxWallboxAmpere), true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_ampere', this.maxWallboxAmpere, true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_enable', true, true);
+                await this.setWallboxStateAsync(this.config.wallbox_ampere_id, this.maxWallboxAmpere, true);
+                await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
+
                 this.wallboxAmpere = this.maxWallboxAmpere; // todo aufechte werte holen
             } else {
                 this.log.debug('Set New Ampere to Wallbox: ' + tmpNewAmpere.toString());
-                this.setForeignStateAsync('0_userdata.0.wallbox_power', this.getWattFromAmpere(tmpNewAmpere), true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_ampere', tmpNewAmpere, true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_enable', true, true);
-                this.wallboxAmpere = tmpNewAmpere; // todo aufechte werte holen
+                await this.setWallboxStateAsync(this.config.wallbox_ampere_id, tmpNewAmpere, true);
+                await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
 
+                this.wallboxAmpere = tmpNewAmpere; // todo aufechte werte holen
             }
         } else {
             // Haben zu wenig leistung, auf minumum gehen und stopTimer starten
             if(this.wallboxAmpere != this.minWallboxAmpere) {
-                this.setForeignStateAsync('0_userdata.0.wallbox_power', this.getWattFromAmpere(this.minWallboxAmpere), true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_ampere', this.minWallboxAmpere, true);
-                this.setForeignStateAsync('0_userdata.0.wallbox_enable', true, true);
+                await this.setWallboxStateAsync(this.config.wallbox_ampere_id, this.minWallboxAmpere, true);
+                await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
                 this.wallboxAmpere = this.minWallboxAmpere; // todo aufechte werte holen
             }
             //stop all after timer
@@ -178,7 +253,7 @@ class PvPowerConrol extends utils.Adapter {
         }
     }
 
-    private checkPvControl():void {
+    private async checkPvControl():Promise<void> {
         //Prüfen ob das Auto bereit ist
         if(this.isPluged && this.vehicleSoc < 100) {
             this.log.debug('vehicle ready check PV Power');
@@ -194,13 +269,13 @@ class PvPowerConrol extends utils.Adapter {
                 if(this.getAmpereFromWatt(this.currentPower) > this.stepAmpereWallbox) {
                     // Haben genügend Energie für eine Wallboxstep
                     this.log.debug('Have enough power - set Wallbox : ' + tmpWallboxAmpere.toString());
-                    this.setWallbox(tmpWallboxAmpere);
+                    await this.setWallbox(tmpWallboxAmpere);
                 } else {
                     // leider nicht genügend für ein Step - aber ist Netzbezug schon?
                     if(this.currentPower < 0) {
                         //Setze Wallbox niedriger
                         this.log.debug('Have not enough power - set Wallbox down: ' + tmpWallboxAmpere.toString());
-                        this.setWallbox(tmpWallboxAmpere);
+                        await this.setWallbox(tmpWallboxAmpere);
                     } else {
                         // Kein Netzbezug, können so laufen lassen
                         this.log.debug('Have not enough power to increase wallbox');
@@ -223,7 +298,7 @@ class PvPowerConrol extends utils.Adapter {
         } else {
             this.log.debug('vehicle not ready or full charged - stop all');
             if(this.mode== 'PV') {
-                this.stopPV();
+                await this.stopPV();
             }
         }
     }
@@ -237,9 +312,9 @@ class PvPowerConrol extends utils.Adapter {
         }
         if(!this.runStartTimer) {
             this.log.info('Start Starttimer - enough power');
-            this.startTimer = this.setTimeout(() => {
+            this.startTimer = this.setTimeout(async () => {
                 this.log.debug('Start timer finished');
-                this.startPV()
+                await this.startPV()
                 this.runStartTimer = false;
             }, this.startTime);
             this.runStartTimer = true;
@@ -256,26 +331,30 @@ class PvPowerConrol extends utils.Adapter {
 
         if(!this.runStopTimer) {
             this.log.info('Start Stoptimer - not enough power');
-            this.stopTimer = this.setTimeout(() => {
+            this.stopTimer = this.setTimeout(async () => {
                 this.log.debug('Stop timer finished');
-                this.stopPV()
+                await this.stopPV()
                 this.runStopTimer = false;
             }, this.stopTime);
             this.runStopTimer = true;
         }
     }
 
-    private startPV(): void {
-        this.mode= 'PV';
+    private async startPV(): Promise<void> {
+        await this.setMode('PV');
     }
 
-    private stopPV(): void {
-        this.mode= 'stop';
+    private async stopPV(): Promise<void> {
+        await this.setMode('stop');
         // Stoppen Wallbox
-        this.setForeignStateAsync('0_userdata.0.wallbox_power', 0, true);
-        this.setForeignStateAsync('0_userdata.0.wallbox_ampere', 0, true);
-        this.setForeignStateAsync('0_userdata.0.wallbox_enable', false, true);
+        await this.setWallboxStateAsync(this.config.wallbox_ampere_id, 0, true);
+        await this.setWallboxStateAsync(this.config.wallbox_enable_id, false, true);
         this.wallboxAmpere = 0; // todo aufechte werte holen
+    }
+
+    private async setMode(mode: string): Promise<void> {
+        this.mode = mode;
+        await this.setStateAsync('information.mode', mode, true);
     }
 
     private getAmpereFromWatt(watt: number): number{
@@ -284,6 +363,11 @@ class PvPowerConrol extends utils.Adapter {
 
     private getWattFromAmpere(ampere: number): number {
         return ampere * 230;
+    }
+
+    private async setWallboxStateAsync(id: string, value: string | boolean | number, ack = true): Promise<void> {
+
+        await this.setForeignStateAsync(id, value, ack);
     }
 }
 

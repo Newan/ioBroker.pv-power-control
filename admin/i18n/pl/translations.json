@@ -10,7 +10,7 @@
     "grid": "Siatka",
     "grid_id:": "Identyfikator siatki",
     "grid_id_help": "Identyfikator punktu danych, aby pokazać moc sieci w watach",
-    "grid_factor:": "Współczynnik siatki",
+    "grid_factor": "Współczynnik siatki",
     "grid_factor_help": "Współczynnik/mnożnik fpr Konwersja wartości GridId",
     "wallbox": "Wallbox",
     "wallbox_enable_id": "Włącz Wallbox-ID",

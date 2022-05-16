@@ -16,9 +16,11 @@
           "lg": 6
         },                
         "intervall": {
+          "newLine": true,
           "type": "number",
           "label": "intervall",
           "help": "intervall_help",
+          "min": 1,
           "sm": 12,
           "md": 6,
           "lg": 6
@@ -28,6 +30,8 @@
           "type": "number",
           "label": "starttime",
           "help": "starttime_help",
+          "min": 1,
+          "max": 3600,
           "sm": 12,
           "md": 6,
           "lg": 6
@@ -37,9 +41,15 @@
           "type": "number",
           "label": "stoptime",
           "help": "stoptime_help",
+          "min": 1,
+          "max": 3600,
           "sm": 12,
           "md": 6,
           "lg": 6
+        },
+        "_spacer": {
+          "type": "divider",
+          "color": "secondary"
         },
         "_donation": {
           "newLine": true,
@@ -60,7 +70,7 @@
         "grid_id": {
           "type": "objectId",
           "help": "grid_id_help",
-          "title": "grid_id",
+          "label": "grid_id",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -87,7 +97,7 @@
         "wallbox_enable_id": {
           "type": "objectId",
           "help": "wallbox_enable_id_help",
-          "title": "wallbox_enable_id",
+          "label": "wallbox_enable_id",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -96,10 +106,11 @@
           "md": 6,
           "lg": 6
         },
-        "wallbox_power_id": {
+        "wallbox_ampere_id": {
+          "newLine": true,
           "type": "objectId",
-          "help": "wallbox_power_id_help",
-          "title": "wallbox_power_id",
+          "help": "wallbox_ampere_id_help",
+          "label": "wallbox_ampere_id",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -113,6 +124,7 @@
           "type": "number",
           "label": "wallbox_ampere_step",
           "help": "wallbox_ampere_step_help",
+          "min": 1,
           "sm": 12,
           "md": 6,
           "lg": 6
@@ -122,10 +134,23 @@
           "type": "number",
           "label": "wallbox_ampere_max",
           "help": "wallbox_ampere_max_help",
+          "min": "1",
+          "max": "22",
           "sm": 12,
           "md": 6,
           "lg": 6
-        }        
+        },
+        "wallbox_ampere_min": {
+          "newLine": true,
+          "type": "number",
+          "label": "wallbox_ampere_min",
+          "help": "wallbox_ampere_min_help",
+          "min": "1",
+          "max": "22",
+          "sm": 12,
+          "md": 6,
+          "lg": 6
+        }                        
       }
     },
     "vehicle": {
@@ -135,7 +160,7 @@
         "vehicle_pluged_id": {
           "type": "objectId",
           "help": "vehicle_pluged_id_help",
-          "title": "vehicle_pluged_id",
+          "label": "vehicle_pluged_id",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -147,7 +172,7 @@
         "vehicle_soc_id": {
           "type": "objectId",
           "help": "vehicle_soc_id_help",
-          "title": "vehicle_soc_id",
+          "label": "vehicle_soc_id",
           "attr": "id",
           "filter": false,
           "sort": false,

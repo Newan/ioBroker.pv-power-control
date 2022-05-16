@@ -1,6 +1,6 @@
 {
 "general": "General",
-"documenation_text": "Plaese check the documantion on github:",
+"documenation_text": "Please check the documantion on github: ",
 "intervall": "Intervall",
 "intervall_help": "Intervall in seconds, to lookup the pv logic",
 "starttime": "Starttime",
@@ -9,16 +9,16 @@
 "stoptime_help": "Time in second, how long wait to chek the power to stop",
 
 "grid": "Grid",
-"grid_id:": "Grid-ID",
+"grid_id": "Grid-ID",
 "grid_id_help": "ID of the datapoint to show the grid power in watt",
-"grid_factor:": "Grid factor",
+"grid_factor": "Grid factor",
 "grid_factor_help": "Factor/Multiplier fpr Conversion the GridId value",
 
 "wallbox": "Wallbox",
 "wallbox_enable_id": "Wallbox-ID enable",
 "wallbox_enable_id_help": "ID of the datapint to enable/disable the wallbox (boolean)",
-"wallbox_power_id": "Wallbox-ID dynamic ampere",
-"wallbox_power_id_help": "ID of the datapint to set the ynamic ampere",
+"wallbox_ampere_id": "Wallbox-ID dynamic ampere",
+"wallbox_ampere_id_help": "ID of the datapint to set the dynamic ampere",
 "wallbox_ampere_step": "Ampere for steps",
 "wallbox_ampere_step_help": "Ampere to change the Wallbox to the next step (up/down)",
 "wallbox_ampere_max": "Max Ampere",

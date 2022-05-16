@@ -10,7 +10,7 @@
     "grid": "网格",
     "grid_id:": "网格 ID",
     "grid_id_help": "数据点的 ID，以瓦特显示电网功率",
-    "grid_factor:": "网格因子",
+    "grid_factor": "网格因子",
     "grid_factor_help": "因子/乘数 fpr 转换 GridId 值",
     "wallbox": "墙盒",
     "wallbox_enable_id": "Wallbox-ID 启用",

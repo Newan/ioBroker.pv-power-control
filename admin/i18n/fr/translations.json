@@ -10,7 +10,7 @@
     "grid": "Grille",
     "grid_id:": "Grid-ID",
     "grid_id_help": "ID du point de données pour afficher la puissance du réseau en watt",
-    "grid_factor:": "Facteur de grille",
+    "grid_factor": "Facteur de grille",
     "grid_factor_help": "Facteur/Multiplicateur fpr Conversion de la valeur GridId",
     "wallbox": "Boîte murale",
     "wallbox_enable_id": "Activation de Wallbox-ID",

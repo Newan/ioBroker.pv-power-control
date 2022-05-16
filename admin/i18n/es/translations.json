@@ -10,7 +10,7 @@
     "grid": "Red",
     "grid_id:": "ID de cuadrícula",
     "grid_id_help": "ID del punto de datos para mostrar la potencia de la red en vatios",
-    "grid_factor:": "factor de red",
+    "grid_factor": "factor de red",
     "grid_factor_help": "Factor/Multiplicador fpr Conversión del valor de GridId",
     "wallbox": "Caja de pared",
     "wallbox_enable_id": "Habilitar Wallbox-ID",
