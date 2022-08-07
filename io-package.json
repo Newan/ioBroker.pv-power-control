@@ -1,8 +1,20 @@
 {
     "common": {
         "name": "pv-power-control",
-        "version": "0.0.2",
+        "version": "0.1.0",
         "news": {
+            "0.1.0": {
+                "en": "add refresh button - to force refresh\nadd suport for easee wallbox (1-phasig)\nadd manual in german [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\nadd 3 ph charging",
+                "de": "erfrischungs-taste hinzufügen - erfrischung drücken\nsuport for easye wallbox (1-phasig)\nhandbuch in Deutsch [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\n3 ph aufladen",
+                "ru": "добавьте кнопку обновления - чтобы заставить обновить\nдобавить suport для easye wallbox (1-phasig)\nдобавить руководство в немецкий [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\nдобавить 3 ф зарядки",
+                "pt": "adicionar botão de atualização - para forçar a atualização\naddt para easye wallbox (1-phasig)\nadicionar manual em alemão [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\nadicionar 3 ph de carregamento",
+                "nl": "voeg verfrissende knop toe\nvoeg suport toe voor gemakkast (1-phasig)\nvoeg handmatig toe in bacteriën/Master/manualsde\nvoeg 3 ph lading",
+                "fr": "ajouter le bouton rafraîchissant - pour forcer rafraîchir\najouter le suport pour faciliter la boîte de mur (1-phasig)\najouter le manuel en allemand [Lien](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\najouter 3 décharges ph",
+                "it": "aggiungere il pulsante di aggiornamento - per forza rinfrescare\naggiungere il suport per la cassetta di sicurezza (1-phasig)\naggiungere manuale in tedesco [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\naggiungere 3 ph di ricarica",
+                "es": "añadir botón de actualización - para la fuerza refrescante\nañadir suport para lighte wallbox (1-phasig)\nañadir manual in german [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)\nañadir 3 ph",
+                "pl": "dodanie przycisku – zmuszanie odświeżeń\ndodaje do złagodzenia skrzynki (1-fazy)\ndodawanie ręcznie w german (Linkps:/github.com/Newan/ioBroker.pv-power-control/blob/master/de.md)\ndodać 3f",
+                "zh-cn": "a. 增购装置\n增加缓冲墙箱(1phasig)\n添加以下手册:\n增加3个硫化物"
+            },
             "0.0.2": {
                 "en": "* initial release\n\n## License\nMIT License\n\nCopyright (c) 2022 Newan <info@newan.de>\n\nPermission is hereby granted, free of charge, to any person obtaining a copy\nof this software and associated documentation files (the \"Software\"), to deal\nin the Software without restriction, including without limitation the rights\nto use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software, and to permit persons to whom the Software is\nfurnished to do so, subject to the following conditions:\n\nThe above copyright notice and this permission notice shall be included in all\ncopies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE\nAUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,\nOUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.",
                 "de": "* Erstveröffentlichung\n\n## Lizenz\nMIT-Lizenz\n\nCopyright (c) 2022 Newan <info@newan.de>\n\nHiermit wird jeder Person kostenlos die Erlaubnis erteilt, eine Kopie zu erhalten\ndieser Software und zugehörigen Dokumentationsdateien (die „Software“) zu behandeln\nin der Software ohne Einschränkung, einschließlich, aber nicht beschränkt auf die Rechte\nzu verwenden, zu kopieren, zu modifizieren, zusammenzuführen, zu veröffentlichen, zu verteilen, unterzulizenzieren und/oder zu verkaufen\nKopien der Software und Personen, denen die Software gehört, zu gestatten\ndazu eingerichtet werden, unter folgenden Bedingungen:\n\nDer obige Urheberrechtshinweis und dieser Genehmigungshinweis müssen in allen enthalten sein\nKopien oder wesentliche Teile der Software.\n\nDIE SOFTWARE WIRD \"WIE BESEHEN\" BEREITGESTELLT, OHNE JEGLICHE GEWÄHRLEISTUNG, AUSDRÜCKLICH ODER\nSTILLSCHWEIGEND, EINSCHLIESSLICH, ABER NICHT BESCHRÄNKT AUF DIE GEWÄHRLEISTUNG DER MARKTGÄNGIGKEIT,\nEIGNUNG FÜR EINEN BESTIMMTEN ZWECK UND NICHTVERLETZUNG VON RECHTEN DRITTER. IN KEINEM FALL SIND DIE\nAUTOREN ODER URHEBERRECHTSINHABER HAFTEN FÜR JEGLICHE ANSPRÜCHE, SCHÄDEN ODER ANDERE\nHAFTUNG, OB AUS VERTRAG, DELIKT ODER ANDERWEITIG, ENTSTEHEND AUS,\nAUS ODER IM ZUSAMMENHANG MIT DER SOFTWARE ODER DER VERWENDUNG ODER ANDEREN HANDLUNGEN MIT DER\nSOFTWARE.",
@@ -98,7 +110,7 @@
         "vehicle_soc_id": ""
     },
     "objects": [],
-    "instanceObjects": [        
+    "instanceObjects": [
         {
             "_id": "control",
             "type": "channel",
@@ -226,7 +238,6 @@
                 "role": "info.status",
                 "read": true,
                 "write": false
-
             },
             "native": {}
         },
@@ -250,7 +261,6 @@
                 "role": "value",
                 "read": true,
                 "write": false
-
             },
             "native": {}
         },
@@ -274,7 +284,6 @@
                 "role": "value",
                 "read": true,
                 "write": false
-
             },
             "native": {}
         }

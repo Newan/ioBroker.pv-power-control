@@ -21,7 +21,7 @@ Adpater to control the pv power to manage devices like wallbox
     ### **WORK IN PROGRESS**
 -->
 
-### **WORK IN PROGRESS**
+### 0.1.0 (2022-08-07)
 * add refresh button - to force refresh
 * add suport for easee wallbox (1-phasig)
 * add manual in german [Link](https://github.com/Newan/ioBroker.pv-power-control/blob/master/manuals/de.md)

@@ -1,6 +1,6 @@
 {
   "name": "iobroker.pv-power-control",
-  "version": "0.0.2",
+  "version": "0.1.0",
   "description": "Adpater to control the pv power to manage devices like wallbox",
   "author": {
     "name": "Newan",
