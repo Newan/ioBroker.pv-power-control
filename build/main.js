@@ -41,8 +41,10 @@ class PvPowerConrol extends utils.Adapter {
     this.isPluged = false;
     this.vehicleSoc = 0;
     this.stepAmpereWallbox = 1;
-    this.wallboxAmpere = 0;
-    this.wallboxEnable = false;
+    this.wallboxAmpereComplete = 0;
+    this.wallboxAmpereP1 = 0;
+    this.wallboxAmpereP2 = 0;
+    this.wallboxAmpereP3 = 0;
     this.minWallboxAmpere = 2;
     this.maxWallboxAmpere = 32;
     this.mode = "stop";
@@ -87,26 +89,22 @@ class PvPowerConrol extends utils.Adapter {
       this.log.error("Wrong grid id - no Samrtmeter found");
       tmpLoadError = true;
     }
-    if (this.config.wallbox_enable_id != "") {
-      this.subscribeForeignStatesAsync(this.config.wallbox_enable_id);
-      const tmpState = await this.getStateAsync(this.config.wallbox_enable_id);
-      this.wallboxEnable = (tmpState == null ? void 0 : tmpState.val) ? true : false;
+    if (this.config.wallbox_ampere_id_p1) {
+      this.subscribeForeignStatesAsync(this.config.wallbox_ampere_id_p1);
     } else {
-      this.log.error("Wrong wallbox status id - no boolean found");
+      this.log.error("Wrong wallbox ampere id for phase 1 - no id found");
       tmpLoadError = true;
     }
-    if (this.config.wallbox_ampere_id != "") {
-      this.subscribeForeignStatesAsync(this.config.wallbox_ampere_id);
-      const tmpState = await this.getForeignStateAsync(this.config.wallbox_ampere_id);
-      this.wallboxAmpere = Number(tmpState == null ? void 0 : tmpState.val);
+    if (this.config.wallbox_ampere_id_p2) {
+      this.subscribeForeignStatesAsync(this.config.wallbox_ampere_id_p2);
     } else {
-      this.log.error("Wrong wallbox ampere id - no number found");
+      this.log.error("Wrong wallbox ampere id for phase 2 - no id found");
       tmpLoadError = true;
     }
-    if (this.config.wallbox_ampere_step > 0) {
-      this.stepAmpereWallbox = this.config.wallbox_ampere_step;
+    if (this.config.wallbox_ampere_id_p3) {
+      this.subscribeForeignStatesAsync(this.config.wallbox_ampere_id_p3);
     } else {
-      this.log.error("Wrong wallbox ampere step:" + this.config.wallbox_ampere_step.toString());
+      this.log.error("Wrong wallbox ampere id for phase 3 - no id found");
       tmpLoadError = true;
     }
     if (this.config.wallbox_ampere_max > 0) {
@@ -121,7 +119,7 @@ class PvPowerConrol extends utils.Adapter {
       this.log.error("Wrong wallbox max ampere :" + this.config.wallbox_ampere_min.toString());
       tmpLoadError = true;
     }
-    if (this.config.vehicle_pluged_id != "") {
+    if (this.config.vehicle_pluged_id) {
       this.subscribeForeignStatesAsync(this.config.vehicle_pluged_id);
       const tmpState = await this.getForeignStateAsync(this.config.vehicle_pluged_id);
       this.isPluged = (tmpState == null ? void 0 : tmpState.val) ? true : false;
@@ -129,7 +127,7 @@ class PvPowerConrol extends utils.Adapter {
       this.log.error("Wrong vehicle pluged id - no boolean found");
       tmpLoadError = true;
     }
-    if (this.config.vehicle_soc_id != "") {
+    if (this.config.vehicle_soc_id) {
       this.subscribeForeignStatesAsync(this.config.vehicle_soc_id);
       const tmpState = await this.getForeignStateAsync(this.config.vehicle_soc_id);
       this.vehicleSoc = Number(tmpState == null ? void 0 : tmpState.val);
@@ -139,8 +137,10 @@ class PvPowerConrol extends utils.Adapter {
     }
     if (!tmpLoadError) {
       this.log.info("loading complete - all data present");
-      await this.setWallboxStateAsync(this.config.wallbox_ampere_id, 0, true);
-      await this.setWallboxStateAsync(this.config.wallbox_enable_id, false, true);
+      this.subscribeStatesAsync("control.start");
+      this.subscribeStatesAsync("control.stop");
+      this.subscribeStatesAsync("control.refresh");
+      await this.stopWallBox();
       this.watchdogInterval = this.setInterval(async () => {
         this.log.debug("Check Intervall tick");
         await this.checkPvControl();
@@ -160,32 +160,38 @@ class PvPowerConrol extends utils.Adapter {
     }
   }
   async onStateChange(id, state) {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c;
     if (state) {
       switch (id) {
         case this.config.grid_id:
-          this.log.debug("New value for grid:" + ((_a = state.val) == null ? void 0 : _a.toString()));
+          this.log.debug("Become nvalue for - grid: " + ((_a = state.val) == null ? void 0 : _a.toString()));
           await this.setGridValue(state.val);
           break;
         case this.config.vehicle_pluged_id:
-          this.log.debug("Vehicle pluged:" + ((_b = state.val) == null ? void 0 : _b.toString()));
+          this.log.debug("Become new value for - Vehicle pluged: " + ((_b = state.val) == null ? void 0 : _b.toString()));
           this.isPluged = state.val ? true : false;
           break;
         case this.config.vehicle_soc_id:
-          this.log.debug("Vehicle soc:" + ((_c = state.val) == null ? void 0 : _c.toString()));
+          this.log.debug("Become new value for - Vehicle SoC: " + ((_c = state.val) == null ? void 0 : _c.toString()));
           this.vehicleSoc = state.val != null ? +state.val : 0;
           break;
-        case this.config.wallbox_ampere_id:
-          this.log.debug("Wallbox ampere:" + ((_d = state.val) == null ? void 0 : _d.toString()));
-          this.wallboxAmpere = state.val != null ? +state.val : 0;
-          break;
-        case this.config.wallbox_enable_id:
-          this.log.debug("Wallbox enable:" + ((_e = state.val) == null ? void 0 : _e.toString()));
-          this.wallboxEnable = state.val ? true : false;
+        case this.config.wallbox_ampere_id_p1:
+        case this.config.wallbox_ampere_id_p2:
+        case this.config.wallbox_ampere_id_p3:
           break;
         default:
-          this.log.error("No supported event found");
-          this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+          const tmpControl = id.split(".")[3];
+          this.log.debug(id);
+          this.log.debug(tmpControl);
+          switch (tmpControl) {
+            case "refresh":
+              this.log.info("Forcing refresh");
+              await this.checkPvControl();
+              break;
+            default:
+              this.log.error("No supported event found");
+              this.log.info(`state ${id} changed: ${state.val} (ack = ${state.ack})`);
+          }
       }
     } else {
       this.log.info(`state ${id} deleted`);
@@ -198,35 +204,67 @@ class PvPowerConrol extends utils.Adapter {
     } else {
       this.currentPower = 0;
     }
+    this.currentPower = this.currentPower + 5e3;
     this.log.debug("currentPower:" + this.currentPower.toString());
   }
+  async stopWallBox() {
+    this.wallboxAmpereP1 = 0;
+    this.wallboxAmpereP2 = 0;
+    this.wallboxAmpereP3 = 0;
+    this.setForeignState(this.config.wallbox_ampere_id_p1, this.wallboxAmpereP1);
+    this.setForeignState(this.config.wallbox_ampere_id_p2, this.wallboxAmpereP2);
+    this.setForeignState(this.config.wallbox_ampere_id_p3, this.wallboxAmpereP3);
+    this.wallboxAmpereComplete = this.wallboxAmpereP1 + this.wallboxAmpereP2 + this.wallboxAmpereP3;
+  }
   async setWallbox(ampere) {
-    const tmpNewAmpere = this.wallboxAmpere + ampere;
-    this.log.debug("New value: " + this.wallboxAmpere);
-    if (tmpNewAmpere >= this.minWallboxAmpere) {
-      if (tmpNewAmpere >= this.maxWallboxAmpere) {
-        this.log.debug("More power as the max Wallbox, set to maxAmpere from Wallbox");
-        await this.setWallboxStateAsync(this.config.wallbox_ampere_id, this.maxWallboxAmpere, true);
-        await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
-        this.wallboxAmpere = this.maxWallboxAmpere;
+    let tmpChangeWallbox = false;
+    const newAmpereComplete = this.wallboxAmpereComplete + ampere;
+    if (newAmpereComplete >= this.maxWallboxAmpere * 3) {
+      if (this.wallboxAmpereP1 < this.maxWallboxAmpere || this.wallboxAmpereP2 < this.maxWallboxAmpere || this.wallboxAmpereP3 < this.maxWallboxAmpere) {
+        this.log.debug("More power as the max Wallbox, set to maxAmpere to Wallbox");
+        this.wallboxAmpereP1 = this.maxWallboxAmpere;
+        this.wallboxAmpereP2 = this.maxWallboxAmpere;
+        this.wallboxAmpereP3 = this.maxWallboxAmpere;
+        tmpChangeWallbox = true;
       } else {
-        this.log.debug("Set New Ampere to Wallbox: " + tmpNewAmpere.toString());
-        await this.setWallboxStateAsync(this.config.wallbox_ampere_id, tmpNewAmpere, true);
-        await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
-        this.wallboxAmpere = tmpNewAmpere;
+        this.log.debug("More power as the max Wallbox, wallbox is on max - nothing changed");
       }
     } else {
-      if (this.wallboxAmpere != this.minWallboxAmpere) {
-        await this.setWallboxStateAsync(this.config.wallbox_ampere_id, this.minWallboxAmpere, true);
-        await this.setWallboxStateAsync(this.config.wallbox_enable_id, true, true);
-        this.wallboxAmpere = this.minWallboxAmpere;
+      this.log.debug("Have New Ampere for Wallbox, add: " + ampere.toString());
+      if (newAmpereComplete >= this.minWallboxAmpere * 3) {
+        this.wallboxAmpereP1 = newAmpereComplete / 3;
+        this.wallboxAmpereP2 = newAmpereComplete / 3;
+        this.wallboxAmpereP3 = newAmpereComplete / 3;
+        tmpChangeWallbox = true;
+      } else {
+        if (newAmpereComplete > this.maxWallboxAmpere) {
+          this.wallboxAmpereP1 = this.maxWallboxAmpere;
+          tmpChangeWallbox = true;
+        }
+        if (newAmpereComplete < this.minWallboxAmpere) {
+          this.wallboxAmpereP1 = this.minWallboxAmpere;
+          tmpChangeWallbox = true;
+          this.checkStopTimer();
+        }
+        if (!tmpChangeWallbox) {
+          this.wallboxAmpereP1 = newAmpereComplete;
+          tmpChangeWallbox = true;
+        }
+        this.wallboxAmpereP2 = 0;
+        this.wallboxAmpereP3 = 0;
+        tmpChangeWallbox = true;
       }
-      this.checkStopTimer();
+    }
+    if (tmpChangeWallbox) {
+      this.setForeignState(this.config.wallbox_ampere_id_p1, this.wallboxAmpereP1);
+      this.setForeignState(this.config.wallbox_ampere_id_p2, this.wallboxAmpereP2);
+      this.setForeignState(this.config.wallbox_ampere_id_p3, this.wallboxAmpereP3);
+      this.wallboxAmpereComplete = this.wallboxAmpereP1 + this.wallboxAmpereP2 + this.wallboxAmpereP3;
     }
   }
   async checkPvControl() {
     if (this.isPluged && this.vehicleSoc < 100) {
-      this.log.debug("vehicle ready check PV Power");
+      this.log.debug("vehicle ready  - check PV Power");
       if (this.mode == "PV") {
         const tmpWallboxAmpere = Math.floor(this.getAmpereFromWatt(this.currentPower) / this.stepAmpereWallbox) * this.stepAmpereWallbox;
         if (this.getAmpereFromWatt(this.currentPower) > this.stepAmpereWallbox) {
@@ -252,7 +290,7 @@ class PvPowerConrol extends utils.Adapter {
         }
       }
     } else {
-      this.log.debug("vehicle not ready or full charged - stop all");
+      this.log.info("Vehicle not ready or full charged - stop all");
       if (this.mode == "PV") {
         await this.stopPV();
       }
@@ -297,9 +335,7 @@ class PvPowerConrol extends utils.Adapter {
   }
   async stopPV() {
     await this.setMode("stop");
-    await this.setWallboxStateAsync(this.config.wallbox_ampere_id, 0, true);
-    await this.setWallboxStateAsync(this.config.wallbox_enable_id, false, true);
-    this.wallboxAmpere = 0;
+    this.stopWallBox();
   }
   async setMode(mode) {
     this.mode = mode;
@@ -310,9 +346,6 @@ class PvPowerConrol extends utils.Adapter {
   }
   getWattFromAmpere(ampere) {
     return ampere * 230;
-  }
-  async setWallboxStateAsync(id, value, ack = true) {
-    await this.setForeignStateAsync(id, value, ack);
   }
 }
 if (require.main !== module) {

@@ -94,10 +94,11 @@
       "type": "panel",
       "label": "wallbox",
       "items": {
-        "wallbox_enable_id": {
+        "wallbox_ampere_id_p1": {
+          "newLine": true,
           "type": "objectId",
-          "help": "wallbox_enable_id_help",
-          "label": "wallbox_enable_id",
+          "help": "wallbox_ampere_id_p1_help",
+          "label": "Ampere Phase 1",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -106,11 +107,11 @@
           "md": 6,
           "lg": 6
         },
-        "wallbox_ampere_id": {
+        "wallbox_ampere_id_p2": {
           "newLine": true,
           "type": "objectId",
-          "help": "wallbox_ampere_id_help",
-          "label": "wallbox_ampere_id",
+          "help": "wallbox_ampere_id_p2_help",
+          "label": "Ampere Phase 2",
           "attr": "id",
           "filter": false,
           "sort": false,
@@ -119,16 +120,19 @@
           "md": 6,
           "lg": 6
         },
-        "wallbox_ampere_step": {
+        "wallbox_ampere_id_p3": {
           "newLine": true,
-          "type": "number",
-          "label": "wallbox_ampere_step",
-          "help": "wallbox_ampere_step_help",
-          "min": 1,
+          "type": "objectId",
+          "help": "wallbox_ampere_id_p3_help",
+          "label": "Ampere Phase 3",
+          "attr": "id",
+          "filter": false,
+          "sort": false,
+          "default": "",
           "sm": 12,
           "md": 6,
           "lg": 6
-        },        
+        },
         "wallbox_ampere_max": {
           "newLine": true,
           "type": "number",

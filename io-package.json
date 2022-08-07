@@ -134,7 +134,7 @@
                     "pl": "Rozpocznij ładowanie PV",
                     "zh-cn": "开始光伏充电"
                 },
-                "type": "button.start",
+                "type": "boolean",
                 "role": "button",
                 "read": true,
                 "write": true
@@ -159,6 +159,29 @@
                 },
                 "type": "boolean",
                 "role": "button.stop",
+                "read": true,
+                "write": true
+            },
+            "native": {}
+        },
+        {
+            "_id": "control.refresh",
+            "type": "state",
+            "common": {
+                "name": {
+                    "en": "Refresh PV control",
+                    "de": "Refresh PV-Steuerung",
+                    "ru": "Refresh PV контроль",
+                    "pt": "Controle de PV refrescante",
+                    "nl": "Verfrissende PV",
+                    "fr": "Refresh PV control",
+                    "it": "Refresh PV control",
+                    "es": "Control PV refrescante",
+                    "pl": "Refresh kontrola PV",
+                    "zh-cn": "重 光控制"
+                },
+                "type": "boolean",
+                "role": "button.refresh",
                 "read": true,
                 "write": true
             },
@@ -255,6 +278,5 @@
             },
             "native": {}
         }
-
     ]
 }

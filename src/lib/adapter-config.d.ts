@@ -9,9 +9,9 @@ declare global {
             stop_time: number;
             grid_factor: number;
             grid_id: string;
-            wallbox_enable_id: string;
-            wallbox_ampere_id: string;
-            wallbox_ampere_step: number;
+            wallbox_ampere_id_p1: string;
+            wallbox_ampere_id_p2: string;
+            wallbox_ampere_id_p3: string;
             wallbox_ampere_max: number;
             wallbox_ampere_min: number;
             vehicle_pluged_id: string;
