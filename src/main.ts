@@ -165,6 +165,7 @@ class PvPowerConrol extends utils.Adapter {
         } else {
             this.log.error('Wrong vehicle SoC id - no number found');
             tmpLoadError = true;
+
         }
 
         if (!tmpLoadError) {
@@ -253,7 +254,7 @@ class PvPowerConrol extends utils.Adapter {
         }
 
         //DEMO Mode
-        this.currentPower = this.currentPower + 5000;
+        //this.currentPower = this.currentPower + 5000;
 
         this.log.debug('currentPower:' + this.currentPower.toString());
     }
@@ -280,7 +281,7 @@ class PvPowerConrol extends utils.Adapter {
 
         //Können die Ladeleistung um die Amperezahl änderm
         if (newAmpereComplete >= this.maxWallboxAmpere * 3) { // * 3 wegen 3 Phasen
-            // Haben mehr AMpere zur Verfügung als die Wallbox kann, pürfen ob wir scho auf max sind?
+            // Haben mehr Ampere zur Verfügung als die Wallbox kann, pürfen ob wir scho auf max sind?
             if(this.wallboxAmpereP1 < this.maxWallboxAmpere || this.wallboxAmpereP2 < this.maxWallboxAmpere || this.wallboxAmpereP3 < this.maxWallboxAmpere ) {
                 //Mindest eine Phase hat zu wenig, setzen also alle Phasen neu
                 this.log.debug('More power as the max Wallbox, set to maxAmpere to Wallbox');
@@ -299,38 +300,44 @@ class PvPowerConrol extends utils.Adapter {
             // Mindestelsitung der Wallbox auf allen Phasen vorhanden
             if(newAmpereComplete >= (this.minWallboxAmpere * 3)) {
                 //3 Phasiges Laden möglich, also erhöhen wir jede Phase um 1/3
-                this.wallboxAmpereP1 = newAmpereComplete / 3;
-                this.wallboxAmpereP2 = newAmpereComplete / 3;
-                this.wallboxAmpereP3 = newAmpereComplete / 3;
-                tmpChangeWallbox = true;
+
+                if(ampere > 1 || ampere < 0) {
+                    this.wallboxAmpereP1 = newAmpereComplete / 3;
+                    this.wallboxAmpereP2 = newAmpereComplete / 3;
+                    this.wallboxAmpereP3 = newAmpereComplete / 3;
+                    tmpChangeWallbox = true;
+                }
+
             } else {
                 //Haben nur 1 Phasig genügend power
+                if(ampere > 1 || ampere < 0) {
 
-                if (newAmpereComplete > this.maxWallboxAmpere) {
-                    //Haben das maximal einer Phase erreicht:
-                    this.wallboxAmpereP1 = this.maxWallboxAmpere
+                    if (newAmpereComplete > this.maxWallboxAmpere) {
+                        //Haben das maximal einer Phase erreicht:
+                        this.wallboxAmpereP1 = this.maxWallboxAmpere
+                        tmpChangeWallbox = true;
+                    }
+
+                    if (newAmpereComplete < this.minWallboxAmpere) {
+                        //Habe nicht genügend Power zum weiterladen - starte Stoptimer
+                        this.wallboxAmpereP1 = this.minWallboxAmpere
+                        tmpChangeWallbox = true;
+
+                        //stop all after timer
+                        this.checkStopTimer();
+                    }
+
+                    //Haben keine MAx und keinen stop, also dynamsich
+                    if (!tmpChangeWallbox) {
+                        this.wallboxAmpereP1 = newAmpereComplete;
+                        tmpChangeWallbox = true;
+                    }
+
+                    //Rest Phasen bei 1 Phasig ausmachen
+                    this.wallboxAmpereP2 = 0;
+                    this.wallboxAmpereP3 = 0;
                     tmpChangeWallbox = true;
                 }
-
-                if (newAmpereComplete < this.minWallboxAmpere) {
-                    //Habe nicht genügend Power zum weiterladen - starte Stoptimer
-                    this.wallboxAmpereP1 = this.minWallboxAmpere
-                    tmpChangeWallbox = true;
-
-                    //stop all after timer
-                    this.checkStopTimer();
-                }
-
-                //Haben keine MAx und keinen stop, also dynamsich
-                if (!tmpChangeWallbox) {
-                    this.wallboxAmpereP1 = newAmpereComplete;
-                    tmpChangeWallbox = true;
-                }
-
-                //Rest Phasen bei 1 Phasig ausmachen
-                this.wallboxAmpereP2 = 0;
-                this.wallboxAmpereP3 = 0;
-                tmpChangeWallbox = true;
             }
         }
 
@@ -342,6 +349,11 @@ class PvPowerConrol extends utils.Adapter {
 
             //setzen noch globale Zähler
             this.wallboxAmpereComplete = this.wallboxAmpereP1 + this.wallboxAmpereP2 + this.wallboxAmpereP3;
+
+            this.log.debug('Send new config to wallbox.')
+
+        } else {
+            this.log.debug('Nothing change to wallbox.');
         }
     }
 

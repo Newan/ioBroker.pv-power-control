@@ -204,7 +204,6 @@ class PvPowerConrol extends utils.Adapter {
     } else {
       this.currentPower = 0;
     }
-    this.currentPower = this.currentPower + 5e3;
     this.log.debug("currentPower:" + this.currentPower.toString());
   }
   async stopWallBox() {
@@ -232,27 +231,31 @@ class PvPowerConrol extends utils.Adapter {
     } else {
       this.log.debug("Have New Ampere for Wallbox, add: " + ampere.toString());
       if (newAmpereComplete >= this.minWallboxAmpere * 3) {
-        this.wallboxAmpereP1 = newAmpereComplete / 3;
-        this.wallboxAmpereP2 = newAmpereComplete / 3;
-        this.wallboxAmpereP3 = newAmpereComplete / 3;
-        tmpChangeWallbox = true;
+        if (ampere > 1 || ampere < 0) {
+          this.wallboxAmpereP1 = newAmpereComplete / 3;
+          this.wallboxAmpereP2 = newAmpereComplete / 3;
+          this.wallboxAmpereP3 = newAmpereComplete / 3;
+          tmpChangeWallbox = true;
+        }
       } else {
-        if (newAmpereComplete > this.maxWallboxAmpere) {
-          this.wallboxAmpereP1 = this.maxWallboxAmpere;
+        if (ampere > 1 || ampere < 0) {
+          if (newAmpereComplete > this.maxWallboxAmpere) {
+            this.wallboxAmpereP1 = this.maxWallboxAmpere;
+            tmpChangeWallbox = true;
+          }
+          if (newAmpereComplete < this.minWallboxAmpere) {
+            this.wallboxAmpereP1 = this.minWallboxAmpere;
+            tmpChangeWallbox = true;
+            this.checkStopTimer();
+          }
+          if (!tmpChangeWallbox) {
+            this.wallboxAmpereP1 = newAmpereComplete;
+            tmpChangeWallbox = true;
+          }
+          this.wallboxAmpereP2 = 0;
+          this.wallboxAmpereP3 = 0;
           tmpChangeWallbox = true;
         }
-        if (newAmpereComplete < this.minWallboxAmpere) {
-          this.wallboxAmpereP1 = this.minWallboxAmpere;
-          tmpChangeWallbox = true;
-          this.checkStopTimer();
-        }
-        if (!tmpChangeWallbox) {
-          this.wallboxAmpereP1 = newAmpereComplete;
-          tmpChangeWallbox = true;
-        }
-        this.wallboxAmpereP2 = 0;
-        this.wallboxAmpereP3 = 0;
-        tmpChangeWallbox = true;
       }
     }
     if (tmpChangeWallbox) {
@@ -260,6 +263,9 @@ class PvPowerConrol extends utils.Adapter {
       this.setForeignState(this.config.wallbox_ampere_id_p2, this.wallboxAmpereP2);
       this.setForeignState(this.config.wallbox_ampere_id_p3, this.wallboxAmpereP3);
       this.wallboxAmpereComplete = this.wallboxAmpereP1 + this.wallboxAmpereP2 + this.wallboxAmpereP3;
+      this.log.debug("Send new config to wallbox.");
+    } else {
+      this.log.debug("Nothing change to wallbox.");
     }
   }
   async checkPvControl() {
