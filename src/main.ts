@@ -399,7 +399,7 @@ class PvPowerConrol extends utils.Adapter {
                 }
             }
         } else {
-            this.log.info('Vehicle not ready or full charged - stop all');
+            this.log.debug('Vehicle not ready or full charged - stop all');
             if(this.mode== 'PV') {
                 await this.stopPV();
             }
